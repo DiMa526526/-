@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Catalog</title>
+    <link rel="stylesheet" href="./styles/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-content">
+        <div class="header-top">
+          <img
+            src="./icons/logo.svg"
+            alt="Логотип Media Catalog"
+            class="logo"
+          />
+          <h1 class="site-title">Media Catalog</h1>
+        </div>
+
+        <div class="search-container">
+          <div class="search-bar">
+            <input
+              type="search"
+              id="search-input"
+              placeholder="Найти по названию..."
+            />
+          </div>
+        </div>
+
+        <div class="filters">
+          <select id="type-filter" class="filter-select">
+            <option value="all">Все типы</option>
+            <option value="film">Фильмы</option>
+            <option value="series">Сериалы</option>
+          </select>
+
+          <select id="genre-filter" class="filter-select">
+            <option value="all">Все жанры</option>
+            <option value="fantasy">Фэнтези</option>
+            <option value="sci-fi">Фантастика</option>
+            <option value="horror">Ужасы</option>
+            <option value="detective">Детектив</option>
+            <option value="mystic">Мистика</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="page-wrapper">
+        <div class="navigation-section">
+          <nav class="playlist-nav">
+            <button class="tab active" data-tab="all">Вся медиатека</button>
+            <button class="tab" data-tab="favorites">
+              <svg
+                class="tab-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M10.3408 5.03809L10.4531 5.23828L10.6787 5.28418L15.1973 6.18848L12.0732 9.57715L11.918 9.74609L11.9443 9.97363L12.4795 14.5498L8.29297 12.627L8.08398 12.5312L7.875 12.627L3.6875 14.5498L4.22363 9.97363L4.25 9.74609L4.09473 9.57715L0.969727 6.18848L5.48926 5.28418L5.71484 5.23828L5.82715 5.03809L8.08398 1.01953L10.3408 5.03809Z"
+                  stroke="black"
+                />
+              </svg>
+              Избранное
+            </button>
+            <button class="tab" data-tab="playlist1">Плейлист 1</button>
+          </nav>
+
+          <div class="control-panel">
+            <button class="btn" id="new-playlist-btn">
+              <img src="./icons/plus-small.svg" class="btn-icon" alt="" />
+              Новый плейлист
+            </button>
+            <button class="btn" id="manage-btn">
+              <img src="./icons/list-pointers.svg" class="btn-icon" alt="" />
+              Управление
+            </button>
+          </div>
+        </div>
+
+        <main class="main-content">
+          <section class="media-grid">
+            <article class="media-card" data-type="film" data-genre="sci-fi">
+              <img
+                src="https://avatars.mds.yandex.net/i?id=55234770853d2b9b0d04c21ef80ac927876bea07-5246350-images-thumbs&n=13"
+                alt="Постер фильма 'Начало'"
+              />
+              <div class="card-info">
+                <div class="card-header">
+                  <h3 class="card-title">Начало</h3>
+                  <button
+                    class="card-fav favorited"
+                    aria-pressed="false"
+                    aria-label="Добавить в избранное"
+                  >
+                    <svg
+                      class="card-star"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M12 .587l3.668 7.431L23.6 9.75l-5.8 5.656L19.336 23 12 19.188 4.664 23l1.536-7.594L.4 9.75l7.932-1.732L12 .587z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div class="card-tags">
+                  <span class="media-type">Фильм</span>
+                  <span class="media-genre">Фантастика</span>
+                </div>
+                <button class="delete-btn">
+                  <img src="./icons/trash.svg" class="icon" alt="" />Удалить
+                </button>
+              </div>
+            </article>
+
+            <article class="media-card" data-type="series" data-genre="horror">
+              <img
+                src="https://avatars.mds.yandex.net/i?id=e8426d1af054b2b35e4fe75da43ae65cc15da90e-16115452-images-thumbs&n=13"
+                alt="Постер сериала 'Очень странные дела'"
+              />
+              <div class="card-info">
+                <div class="card-header">
+                  <h3 class="card-title">Очень странные дела</h3>
+                  <button
+                    class="card-fav"
+                    aria-pressed="false"
+                    aria-label="Добавить в избранное"
+                  >
+                    <svg
+                      class="card-star"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M12 .587l3.668 7.431L23.6 9.75l-5.8 5.656L19.336 23 12 19.188 4.664 23l1.536-7.594L.4 9.75l7.932-1.732L12 .587z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div class="card-tags">
+                  <span class="media-type">Сериал</span>
+                  <span class="media-genre">Ужасы</span>
+                </div>
+                <button class="delete-btn">
+                  <img src="./icons/trash.svg" class="icon" alt="" />Удалить
+                </button>
+              </div>
+            </article>
+
+            <article class="media-card" data-type="film" data-genre="detective">
+              <img
+                src="https://pr6.zoon.ru/PhJoC-wYrnxwiklxhMkPIg/600x900%2Cq85/SpS0r36yAVMNnD-E09g7J4Ftn_kjw7RILY1x59M9cnd2YWVMMFqRNHaBv__fDYFdm60zFZUB0Hctpd3PBWZ9IhDRwXAfHawqSnE5gGkSuXn3E4ZxYvStW4ZuC9YM7GripfGVZTrhAiQ2SbjzHiYEK2_sokfHVqN5wswTJ3YlaGHeGwiKFrCqNibA9MMe6AGs8vcxCOkuS4gIcDEbR9nYXGYR1_WkPtvfFFHCTvB-Hr1K7pNYcTJ4j_LptPRKapK7541wDgNj0c5E5Pp3xB1m6dIod2NjJ75iIguwpFA5YnWTvL7Mt0FfX-A0galJlBtH4_VVVcaB3Bk5lMQYllBCAQ"
+                alt="Постер фильма 'Достать ножи'"
+              />
+              <div class="card-info">
+                <div class="card-header">
+                  <h3 class="card-title">Достать ножи</h3>
+                  <button
+                    class="card-fav"
+                    aria-pressed="false"
+                    aria-label="Добавить в избранное"
+                  >
+                    <svg
+                      class="card-star"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M12 .587l3.668 7.431L23.6 9.75l-5.8 5.656L19.336 23 12 19.188 4.664 23l1.536-7.594L.4 9.75l7.932-1.732L12 .587z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div class="card-tags">
+                  <span class="media-type">Фильм</span>
+                  <span class="media-genre">Детектив</span>
+                </div>
+                <button class="delete-btn">
+                  <img src="./icons/trash.svg" class="icon" alt="" />Удалить
+                </button>
+              </div>
+            </article>
+
+            <article class="media-card" data-type="series" data-genre="mystic">
+              <img
+                src="https://avatars.mds.yandex.net/get-mpic/5304425/2a000001939991c559fa7494be5431563279/orig"
+                alt="Постер сериала 'Сверхъестественное'"
+              />
+              <div class="card-info">
+                <div class="card-header">
+                  <h3 class="card-title">Сверхъестественное</h3>
+                  <button
+                    class="card-fav"
+                    aria-pressed="false"
+                    aria-label="Добавить в избранное"
+                  >
+                    <svg
+                      class="card-star"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M12 .587l3.668 7.431L23.6 9.75l-5.8 5.656L19.336 23 12 19.188 4.664 23l1.536-7.594L.4 9.75l7.932-1.732L12 .587z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div class="card-tags">
+                  <span class="media-type">Сериал</span>
+                  <span class="media-genre">Мистика</span>
+                </div>
+                <button class="delete-btn">
+                  <img src="./icons/trash.svg" class="icon" alt="" />Удалить
+                </button>
+              </div>
+            </article>
+
+            <article class="media-card" data-type="film" data-genre="fantasy">
+              <img
+                src="https://avatars.mds.yandex.net/get-kinopoisk-image/1777765/51ed579c-586d-48a4-a6ec-837738159f33/orig"
+                alt="Постер фильма 'Маска'"
+              />
+              <div class="card-info">
+                <div class="card-header">
+                  <h3 class="card-title">Маска</h3>
+                  <button
+                    class="card-fav"
+                    aria-pressed="false"
+                    aria-label="Добавить в избранное"
+                  >
+                    <svg
+                      class="card-star"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M12 .587l3.668 7.431L23.6 9.75l-5.8 5.656L19.336 23 12 19.188 4.664 23l1.536-7.594L.4 9.75l7.932-1.732L12 .587z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div class="card-tags">
+                  <span class="media-type">Фильм</span>
+                  <span class="media-genre">Фэнтези</span>
+                </div>
+                <button class="delete-btn">
+                  <img src="./icons/trash.svg" class="icon" alt="" />Удалить
+                </button>
+              </div>
+            </article>
+          </section>
+        </main>
+
+        <button
+          class="add-card-btn"
+          id="add-card-btn"
+          title="Добавить фильм или сериал"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
