@@ -1,21 +1,41 @@
+// main.js (альтернативная версия)
 import { render, RenderPosition } from "./framework/render.js";
-import HeaderComponent from "./view/header-component.js";
-import NavigationComponent from "./view/navigation-component.js";
-import MediaGridComponent from "./view/media-grid-component.js";
-import MediaCardComponent from "./view/media-card-component.js";
-import AddCardButtonComponent from "./view/add-card-button-component.js";
+import MediaPresenter from "./presenter/media-presenter.js";
 
+// Находим существующие контейнеры в HTML
 const bodyContainer = document.querySelector(".board-app");
 const pageWrapper = document.querySelector(".page-wrapper");
 const mainContent = document.querySelector(".main-content");
 
-render(new HeaderComponent(), bodyContainer, RenderPosition.BEFOREBEGIN);
-render(new NavigationComponent(), pageWrapper, RenderPosition.AFTERBEGIN);
+// Создаем контейнеры внутри существующей структуры
+const headerContainer = document.createElement("div");
+const navigationContainer = document.createElement("div");
+const mediaGridContainer = document.createElement("div");
 
-const mediaGrid = new MediaGridComponent();
-render(mediaGrid, mainContent, RenderPosition.AFTERBEGIN);
+// Очищаем mainContent и добавляем наш контейнер для сетки
+mainContent.innerHTML = "";
+mainContent.appendChild(mediaGridContainer);
 
-const gridContainer = mediaGrid.getElement();
-render(new MediaCardComponent(), gridContainer);
+// Добавляем header перед bodyContainer
+bodyContainer.parentNode.insertBefore(headerContainer, bodyContainer);
 
-render(new AddCardButtonComponent(), pageWrapper);
+// Добавляем navigation в pageWrapper (заменяем существующую навигацию)
+const existingNavigation = pageWrapper.querySelector(".navigation-section");
+if (existingNavigation) {
+  existingNavigation.remove();
+}
+pageWrapper.insertAdjacentElement(
+  RenderPosition.AFTERBEGIN,
+  navigationContainer
+);
+
+// Создаем и инициализируем презентер
+const mediaPresenter = new MediaPresenter(
+  headerContainer,
+  navigationContainer,
+  mediaGridContainer
+);
+
+mediaPresenter.init();
+
+console.log("MediaPresenter initialized with existing HTML structure!");

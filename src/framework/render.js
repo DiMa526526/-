@@ -1,19 +1,23 @@
 const RenderPosition = {
-    BEFOREBEGIN: 'beforebegin',
-    AFTERBEGIN: 'afterbegin',
-    BEFOREEND: 'beforeend',
-    AFTEREND: 'afterend',
-}
+  BEFOREBEGIN: "beforebegin",
+  AFTERBEGIN: "afterbegin",
+  BEFOREEND: "beforeend",
+  AFTEREND: "afterend",
+};
 
 function createElement(template) {
-    const newElement = document.createElement('div');
-    newElement.innerHTML = template;
+  const newElement = document.createElement("div");
+  newElement.innerHTML = template;
 
-    return newElement.firstElementChild;
+  return newElement.firstElementChild;
 }
 
 function render(component, container, place = RenderPosition.BEFOREEND) {
-    container.insertAdjacentElement(place, component.getElement());
+  if (container === null) {
+    throw new Error("Container element doesn't exist");
+  }
+
+  container.insertAdjacentElement(place, component.element);
 }
 
-export {RenderPosition, createElement, render}
+export { RenderPosition, createElement, render };

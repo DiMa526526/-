@@ -1,6 +1,10 @@
 import { createElement } from "../framework/render.js";
+import { AbstractComponent } from "../framework/view/abstract-component.js";
 
-function createNavigationTemplate() {
+// Сделаем функцию создания шаблона динамической
+function createNavigationTemplate(playlists = []) {
+  const customPlaylists = playlists.filter((p) => !p.isDefault);
+
   return `<div class="navigation-section">
           <nav class="playlist-nav">
             <button class="tab active" data-tab="all">Вся медиатека</button>
@@ -18,7 +22,12 @@ function createNavigationTemplate() {
               </svg>
               Избранное
             </button>
-            <button class="tab" data-tab="playlist1">Плейлист 1</button>
+            ${customPlaylists
+              .map(
+                (playlist) =>
+                  `<button class="tab" data-tab="${playlist.id}">${playlist.name}</button>`
+              )
+              .join("")}
           </nav>
 
           <div class="control-panel">
@@ -34,20 +43,37 @@ function createNavigationTemplate() {
         </div>`;
 }
 
-export default class NavigationComponent {
-  getTemplate() {
-    return createNavigationTemplate();
+export default class NavigationComponent extends AbstractComponent {
+  constructor(playlists = []) {
+    super();
+    this._playlists = playlists;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createNavigationTemplate(this._playlists);
   }
 
-  removeElement() {
-    this.element = null;
+  // Метод для обновления плейлистов
+  updatePlaylists(playlists) {
+    this._playlists = playlists;
+    this.rerender();
+  }
+
+  // Метод для перерисовки компонента
+  rerender() {
+    const oldElement = this.element;
+    const parent = oldElement.parentElement;
+
+    this.removeElement();
+
+    const newElement = this.element;
+    parent.replaceChild(newElement, oldElement);
+
+    this._restoreHandlers();
+  }
+
+  _restoreHandlers() {
+    // Здесь будут восстанавливаться обработчики событий
+    // Пока оставим пустым, так как обработчики в презентере
   }
 }

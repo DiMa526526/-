@@ -1,4 +1,5 @@
 import { createElement } from "../framework/render.js";
+import { AbstractComponent } from "../framework/view/abstract-component.js";
 
 function createAddCardButtonTemplate() {
   return `<button
@@ -10,20 +11,8 @@ function createAddCardButtonTemplate() {
         </button>`;
 }
 
-export default class AddCardButtonComponent {
-  getTemplate() {
+export default class AddCardButtonComponent extends AbstractComponent {
+  get template() {
     return createAddCardButtonTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
