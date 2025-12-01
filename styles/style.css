@@ -1,74 +1,5 @@
-.add-media-modal .form-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  margin-top: 32px;
-}
-.add-media-modal .btn {
-  flex: 0 1 140px;
-  height: 40px;
-  padding: 0 24px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  min-width: 0;
-  box-sizing: border-box;
-}
-.add-media-modal .btn-cancel {
-  background: #f1f1f1;
-  color: #333;
-}
-.add-media-modal .btn-cancel:hover {
-  background: #e5e5e5;
-}
-.add-media-modal .btn-create {
-  background: #000;
-  color: #fff;
-}
-.add-media-modal .btn-create:hover {
-  background: #333;
-}
-.add-media-modal .btn-create:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-.add-media-modal .btn {
-  padding: 12px 24px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  transition: all 0.2s ease;
-}
-.add-media-modal .btn-cancel {
-  background: #f1f1f1;
-  color: #333;
-}
-.add-media-modal .btn-cancel:hover {
-  background: #e5e5e5;
-}
-.add-media-modal .btn-create {
-  background: #000;
-  color: #fff;
-}
-.add-media-modal .btn-create:hover {
-  background: #333;
-}
-.add-media-modal .btn-create:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-.add-media-modal .form-label {
-  margin-bottom: 12px;
-}
-/* --- Унификация select.form-select и .filter-select --- */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@400&display=swap");
+
 select.form-select {
   appearance: none;
   -webkit-appearance: none;
@@ -99,6 +30,7 @@ select.form-select:focus {
   border-color: #999;
   background-color: #f2f2f2;
 }
+
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@400&display=swap");
 
 :root {
@@ -162,9 +94,6 @@ body {
   min-height: 100vh;
 }
 
-/* ...existing code for layout, navigation, cards, buttons... */
-
-/* --- Add Media Modal Styles --- */
 .add-media-modal {
   width: 620px;
   min-height: 580px;
@@ -224,7 +153,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Dropdown arrow for type select */
 .add-media-modal .modal-type-arrow {
   position: absolute;
   left: 542px;
@@ -289,7 +217,6 @@ body {
   font-weight: 400 !important;
 }
 
-/* --- Manage Playlists Modal (финальный вариант) --- */
 .manage-playlists-modal {
   width: 700px;
   max-height: 90vh;
@@ -468,8 +395,8 @@ body {
     max-width: none;
   }
 }
-/* --- Manage Playlists Modal (макет-подобный) --- */
-.manage-playlists-modal {
+
+.manage-playlists-modal-v1 {
   width: 700px;
   min-height: 240px;
   background: #fff;
@@ -569,8 +496,8 @@ body {
   height: 21px;
   display: block;
 }
-/* --- Manage Playlists Modal (v2) --- */
-.manage-playlists-modal {
+
+.manage-playlists-modal-v2 {
   width: 760px;
   min-height: 320px;
   background: #fff;
@@ -1196,7 +1123,6 @@ body {
   transform: scale(1.05);
 }
 
-/* Добавьте эти стили в ваш style.css */
 .overlay {
   position: fixed;
   inset: 0;
@@ -1306,7 +1232,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Playlist modal list and checkbox layout */
 .playlist-list {
   display: flex;
   flex-direction: column;
@@ -1354,7 +1279,6 @@ body {
   white-space: nowrap;
 }
 
-/* Ensure modal action buttons size correctly (override global .btn constraints) */
 .modal .buttons .btn {
   min-width: 0;
   height: auto;

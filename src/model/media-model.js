@@ -6,12 +6,10 @@ export default class MediaModel {
     this.playlists = [...mockPlaylists];
   }
 
-  // Получить все медиа
   getMedia() {
     return this.media;
   }
 
-  // Фильтрация медиа
   filterMedia({ type = "all", genre = "all", search = "" }) {
     return this.media.filter((item) => {
       const typeMatch = type === "all" || item.type === type;
@@ -23,12 +21,10 @@ export default class MediaModel {
     });
   }
 
-  // Получить медиа по ID
   getMediaById(id) {
     return this.media.find((item) => item.id === id);
   }
 
-  // Переключить избранное
   toggleFavorite(mediaId) {
     const media = this.media.find((m) => m.id === mediaId);
     if (media) {
@@ -37,7 +33,6 @@ export default class MediaModel {
     return media;
   }
 
-  // Добавить новое медиа
   addMedia(newMedia) {
     const media = {
       id: Date.now(),
@@ -49,12 +44,10 @@ export default class MediaModel {
     return media;
   }
 
-  // Удалить медиа
   deleteMedia(mediaId) {
     this.media = this.media.filter((m) => m.id !== mediaId);
   }
 
-  // Добавить в плейлист
   addToPlaylist(mediaId, playlistId) {
     const media = this.media.find((m) => m.id === mediaId);
     if (media && !media.playlistIds.includes(playlistId)) {
@@ -63,7 +56,6 @@ export default class MediaModel {
     return media;
   }
 
-  // Удалить из плейлиста
   removeFromPlaylist(mediaId, playlistId) {
     const media = this.media.find((m) => m.id === mediaId);
     if (media) {
@@ -72,30 +64,25 @@ export default class MediaModel {
     return media;
   }
 
-  // Получить все плейлисты
   getPlaylists() {
     return this.playlists;
   }
 
-  // Создать плейлист
   createPlaylist(name) {
-    console.log("Creating playlist:", name); // Отладка
     const playlist = {
       id: `playlist_${Date.now()}`,
       name,
       isDefault: false,
     };
     this.playlists.push(playlist);
-    console.log("Playlists after creation:", this.playlists); // Отладка
     return playlist;
   }
-  // Удалить плейлист
+
   deletePlaylist(playlistId) {
     const playlist = this.playlists.find((p) => p.id === playlistId);
     if (playlist && !playlist.isDefault) {
       this.playlists = this.playlists.filter((p) => p.id !== playlistId);
 
-      // Удаляем ссылки на плейлист из медиа
       this.media.forEach((media) => {
         media.playlistIds = media.playlistIds.filter((id) => id !== playlistId);
       });
@@ -105,7 +92,6 @@ export default class MediaModel {
     return false;
   }
 
-  // Получить медиа для плейлиста
   getMediaForPlaylist(playlistId) {
     if (playlistId === "all") {
       return this.media;
@@ -115,7 +101,7 @@ export default class MediaModel {
       return this.media.filter((m) => m.playlistIds.includes(playlistId));
     }
   }
-  // Обновить плейлист
+
   updatePlaylist(playlistId, newName) {
     const playlist = this.playlists.find((p) => p.id === playlistId);
     if (playlist && !playlist.isDefault && newName.trim()) {
@@ -125,7 +111,6 @@ export default class MediaModel {
     return false;
   }
 
-  // Обновить медиа
   updateMedia(mediaId, updates) {
     const mediaIndex = this.media.findIndex((m) => m.id === mediaId);
     if (mediaIndex !== -1) {
@@ -135,18 +120,15 @@ export default class MediaModel {
     return null;
   }
 
-  // Получить плейлист по ID
   getPlaylistById(playlistId) {
     return this.playlists.find((p) => p.id === playlistId);
   }
 
-  // Проверить, находится ли медиа в плейлисте
   isMediaInPlaylist(mediaId, playlistId) {
     const media = this.getMediaById(mediaId);
     return media ? media.playlistIds.includes(playlistId) : false;
   }
 
-  // Получить все пользовательские плейлисты (исключая системные)
   getCustomPlaylists() {
     return this.playlists.filter((p) => !p.isDefault);
   }

@@ -1,4 +1,3 @@
-// presenters/media-presenter.js
 import MediaModel from "../model/media-model.js";
 import HeaderComponent from "../view/header-component.js";
 import NavigationComponent from "../view/navigation-component.js";
@@ -10,17 +9,14 @@ import { render } from "../framework/render.js";
 
 export default class MediaPresenter {
   constructor(headerContainer, navigationContainer, mediaContainer) {
-    // Контейнеры для рендеринга
     this.headerContainer = headerContainer;
     this.navigationContainer = navigationContainer;
     this.mediaContainer = mediaContainer;
     this.modal = null;
-    this.addMediaModal = null; // Добавляем ссылку на модальное окно добавления медиа
+    this.addMediaModal = null;
 
-    // Модель данных
     this.mediaModel = new MediaModel();
 
-    // Текущее состояние
     this.currentState = {
       filters: {
         type: "all",
@@ -31,7 +27,6 @@ export default class MediaPresenter {
       activeTab: "all",
     };
 
-    // Ссылки на компоненты
     this.components = {
       header: null,
       navigation: null,
@@ -41,7 +36,6 @@ export default class MediaPresenter {
     };
   }
 
-  // Инициализация приложения
   init() {
     this.renderHeader();
     this.renderNavigation();
@@ -49,7 +43,6 @@ export default class MediaPresenter {
     this.bindGlobalEvents();
   }
 
-  // Рендер хедера с поиском и фильтрами
   renderHeader() {
     this.components.header = new HeaderComponent();
     render(this.components.header, this.headerContainer);
@@ -57,13 +50,9 @@ export default class MediaPresenter {
   }
 
   renderNavigation() {
-    // Получаем актуальные плейлисты
     const playlists = this.mediaModel.getPlaylists();
-
-    // Очищаем предыдущую навигацию
     this.clearNavigation();
 
-    // Создаем новую навигацию с актуальными плейлистами
     this.components.navigation = new NavigationComponent(playlists);
     render(this.components.navigation, this.navigationContainer);
     this.bindNavigationEvents();
@@ -72,7 +61,6 @@ export default class MediaPresenter {
   }
 
   clearNavigation() {
-    // Полностью очищаем контейнер
     this.navigationContainer.innerHTML = "";
 
     if (
@@ -84,29 +72,21 @@ export default class MediaPresenter {
     this.components.navigation = null;
   }
 
-  // Рендер сетки с медиа-карточками
   renderMediaGrid() {
-    // Очищаем предыдущую сетку
     this.clearMediaGrid();
 
-    // Получаем отфильтрованные данные
     const mediaData = this.getFilteredMedia();
 
-    // Рендерим карточки
     this.renderMediaCards(mediaData);
 
-    // Добавляем кнопку "Добавить"
     this.renderAddButton();
   }
 
-  // Рендер карточек медиа
   renderMediaCards(mediaData) {
     this.components.mediaCards = [];
 
-    // ОЧИЩАЕМ ОСНОВНОЙ КОНТЕЙНЕР
     this.mediaContainer.innerHTML = "";
 
-    // СОЗДАЕМ СЕТКУ ЗАНОВО
     this.components.mediaGrid = new MediaGridComponent();
     render(this.components.mediaGrid, this.mediaContainer);
 
@@ -121,11 +101,9 @@ export default class MediaPresenter {
       this.bindMediaCardEvents(mediaCard, media);
     });
 
-    // Добавляем кнопку после карточек
     this.renderAddButton();
   }
 
-  // Рендер кнопки добавления
   renderAddButton() {
     this.components.addButton = new AddCardButtonComponent();
     const parentContainer =
@@ -134,7 +112,6 @@ export default class MediaPresenter {
     this.bindAddButtonEvents();
   }
 
-  // Очистка сетки
   clearMediaGrid() {
     this.components.mediaCards.forEach((card) => {
       if (card.removeElement) {
@@ -152,14 +129,11 @@ export default class MediaPresenter {
     }
   }
 
-  // Получение отфильтрованных медиа
   getFilteredMedia() {
     const { filters, activePlaylist } = this.currentState;
 
-    // Сначала фильтруем по плейлисту
     let media = this.mediaModel.getMediaForPlaylist(activePlaylist);
 
-    // Затем применяем остальные фильтры
     media = media.filter((item) => {
       const typeMatch = filters.type === "all" || item.type === filters.type;
       const genreMatch =
@@ -174,11 +148,9 @@ export default class MediaPresenter {
     return media;
   }
 
-  // Биндинг событий хедера
   bindHeaderEvents() {
     const headerElement = this.components.header.element;
 
-    // Фильтр по типу
     const typeFilter = headerElement.querySelector("#type-filter");
     if (typeFilter) {
       typeFilter.addEventListener("change", (e) => {
@@ -187,7 +159,6 @@ export default class MediaPresenter {
       });
     }
 
-    // Фильтр по жанру
     const genreFilter = headerElement.querySelector("#genre-filter");
     if (genreFilter) {
       genreFilter.addEventListener("change", (e) => {
@@ -196,7 +167,6 @@ export default class MediaPresenter {
       });
     }
 
-    // Поиск
     const searchInput = headerElement.querySelector("#search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
@@ -206,11 +176,9 @@ export default class MediaPresenter {
     }
   }
 
-  // Биндинг событий навигации
   bindNavigationEvents() {
     const navElement = this.components.navigation.element;
 
-    // Переключение вкладок (делегирование событий)
     navElement.addEventListener("click", (e) => {
       const tab = e.target.closest(".tab");
       if (tab) {
@@ -219,7 +187,6 @@ export default class MediaPresenter {
       }
     });
 
-    // Создание нового плейлиста
     const newPlaylistBtn = navElement.querySelector("#new-playlist-btn");
     if (newPlaylistBtn) {
       newPlaylistBtn.addEventListener("click", () => {
@@ -227,7 +194,6 @@ export default class MediaPresenter {
       });
     }
 
-    // Управление
     const manageBtn = navElement.querySelector("#manage-btn");
     if (manageBtn) {
       manageBtn.addEventListener("click", () => {
@@ -236,11 +202,9 @@ export default class MediaPresenter {
     }
   }
 
-  // Биндинг событий карточек медиа
   bindMediaCardEvents(mediaCard, media) {
     const cardElement = mediaCard.element;
 
-    // Избранное
     const favoriteBtn = cardElement.querySelector(".card-fav");
     if (favoriteBtn) {
       favoriteBtn.addEventListener("click", () => {
@@ -248,7 +212,6 @@ export default class MediaPresenter {
       });
     }
 
-    // Добавление в плейлист
     const playlistBtn = cardElement.querySelector(".card-playlist");
     if (playlistBtn) {
       playlistBtn.addEventListener("click", () => {
@@ -256,7 +219,6 @@ export default class MediaPresenter {
       });
     }
 
-    // Удаление
     const deleteBtn = cardElement.querySelector(".delete-btn");
     if (deleteBtn) {
       deleteBtn.addEventListener("click", () => {
@@ -265,7 +227,6 @@ export default class MediaPresenter {
     }
   }
 
-  // Биндинг событий кнопки добавления
   bindAddButtonEvents() {
     const addButton = this.components.addButton.element;
     if (addButton) {
@@ -275,19 +236,12 @@ export default class MediaPresenter {
     }
   }
 
-  // Глобальные события
-  bindGlobalEvents() {
-    // Можно добавить обработку глобальных событий, например, клавиатуры
-  }
+  bindGlobalEvents() {}
 
-  // Обработчики действий
-
-  // Смена вкладки
   handleTabChange(playlistId, clickedTab) {
     this.currentState.activePlaylist = playlistId;
     this.currentState.activeTab = playlistId;
 
-    // Обновляем активную вкладку в UI
     const allTabs = this.components.navigation.element.querySelectorAll(".tab");
     allTabs.forEach((tab) => tab.classList.remove("active"));
     clickedTab.classList.add("active");
@@ -295,13 +249,11 @@ export default class MediaPresenter {
     this.renderMediaGrid();
   }
 
-  // Переключение избранного
   handleToggleFavorite(mediaId) {
     this.mediaModel.toggleFavorite(mediaId);
-    this.renderMediaGrid(); // Перерисовываем для обновления состояния
+    this.renderMediaGrid();
   }
 
-  // Удаление медиа
   handleDeleteMedia(mediaId) {
     if (confirm("Вы уверены, что хотите удалить этот элемент?")) {
       this.mediaModel.deleteMedia(mediaId);
@@ -309,12 +261,10 @@ export default class MediaPresenter {
     }
   }
 
-  // Добавление нового медиа (ОБНОВЛЕННЫЙ МЕТОД)
   handleAddMedia() {
     this.showAddMediaModal();
   }
 
-  // Показать модальное окно добавления медиа
   showAddMediaModal() {
     import("../view/add-media-modal-component.js").then((module) => {
       const AddMediaModalComponent = module.default;
@@ -334,7 +284,6 @@ export default class MediaPresenter {
     });
   }
 
-  // Закрыть модальное окно добавления медиа
   closeAddMediaModal() {
     if (this.addMediaModal && this.addMediaModal.element) {
       if (this.addMediaModal.element.parentNode) {
@@ -346,7 +295,6 @@ export default class MediaPresenter {
     }
   }
 
-  // Обработчик создания медиа из формы
   handleCreateMedia(mediaData) {
     const newMedia = {
       title: mediaData.title,
@@ -361,7 +309,6 @@ export default class MediaPresenter {
     this.renderMediaGrid();
   }
 
-  // Добавление в плейлист
   handleAddToPlaylist(media) {
     const playlists = this.mediaModel.getPlaylists();
     this.showAddToPlaylistModal(playlists, media);
@@ -376,15 +323,12 @@ export default class MediaPresenter {
         media.title
       );
 
-      // Рендерим модальное окно
       document.body.appendChild(this.playlistModal.element);
 
-      // Обработчик закрытия
       this.playlistModal.setCloseHandler(() => {
         this.closeAddToPlaylistModal();
       });
 
-      // Обработчик добавления
       this.playlistModal.setAddHandler((selectedPlaylistIds) => {
         this.addMediaToPlaylists(media.id, selectedPlaylistIds);
       });
@@ -396,14 +340,12 @@ export default class MediaPresenter {
       this.mediaModel.addToPlaylist(mediaId, playlistId);
     });
 
-    // Показываем уведомление
     if (playlistIds.length > 0) {
       alert("Медиа добавлено в выбранные плейлисты!");
     }
 
     this.closeAddToPlaylistModal();
 
-    // Обновляем навигацию, если нужно показать новые плейлисты
     this.renderNavigation();
   }
 
@@ -419,13 +361,10 @@ export default class MediaPresenter {
   }
 
   showPlaylistModal() {
-    // Создаем модальное окно
     this.modal = new PlaylistModalComponent();
 
-    // Рендерим его в body
     document.body.appendChild(this.modal.element);
 
-    // Устанавливаем обработчики
     this.modal.setCloseHandler(() => {
       this.closePlaylistModal();
     });
