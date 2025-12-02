@@ -63,8 +63,8 @@ function createAddMediaModalTemplate() {
           </div>
           
           <div class="form-actions">
-            <button type="button" class="btn btn-cancel">Отмена</button>
-            <button type="submit" class="btn btn-create">Создать</button>
+            <button type="button" class="btn cancel">Отмена</button>
+            <button type="submit" class="btn create">Создать</button>
           </div>
         </form>
       </div>

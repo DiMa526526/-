@@ -883,6 +883,11 @@ body {
   top: -1px;
 }
 
+#new-playlist-btn,
+#manage-btn {
+  height: 30px;
+}
+
 #new-playlist-btn .btn-icon {
   width: 30px;
   height: 30px;
@@ -955,7 +960,7 @@ body {
 
 .btn {
   min-width: 171px;
-  height: var(--btn-height, 30px);
+  height: var(--btn-height, 45px);
   background: var(--surface);
   border-radius: var(--radius-sm);
   border: 0.5px var(--border) solid;
@@ -1245,7 +1250,8 @@ body {
   background: #e5e5e5;
 }
 
-.modal .create {
+.modal .create,
+.modal .save {
   background: #000;
   color: #fff;
 }
