@@ -1,4 +1,3 @@
-import MediaModel from "../model/media-model.js";
 import HeaderComponent from "../view/header-component.js";
 import NavigationComponent from "../view/navigation-component.js";
 import MediaGridComponent from "../view/media-grid-component.js";
@@ -8,14 +7,18 @@ import PlaylistModalComponent from "../view/playlist-modal-component.js";
 import { render } from "../framework/render.js";
 
 export default class MediaPresenter {
-  constructor(headerContainer, navigationContainer, mediaContainer) {
+  constructor(
+    headerContainer,
+    navigationContainer,
+    mediaContainer,
+    mediaModel
+  ) {
     this.headerContainer = headerContainer;
     this.navigationContainer = navigationContainer;
     this.mediaContainer = mediaContainer;
     this.modal = null;
     this.addMediaModal = null;
-
-    this.mediaModel = new MediaModel();
+    this.mediaModel = mediaModel;
 
     this.currentState = {
       filters: {
@@ -56,8 +59,6 @@ export default class MediaPresenter {
     this.components.navigation = new NavigationComponent(playlists);
     render(this.components.navigation, this.navigationContainer);
     this.bindNavigationEvents();
-
-    console.log("Navigation rendered with playlists:", playlists);
   }
 
   clearNavigation() {
@@ -84,7 +85,6 @@ export default class MediaPresenter {
 
   renderMediaCards(mediaData) {
     this.components.mediaCards = [];
-
     this.mediaContainer.innerHTML = "";
 
     this.components.mediaGrid = new MediaGridComponent();
@@ -227,6 +227,11 @@ export default class MediaPresenter {
     }
   }
 
+  handleAddToPlaylist(media) {
+    const playlists = this.mediaModel.getPlaylists();
+    this.showAddToPlaylistModal(playlists, media);
+  }
+
   bindAddButtonEvents() {
     const addButton = this.components.addButton.element;
     if (addButton) {
@@ -249,15 +254,25 @@ export default class MediaPresenter {
     this.renderMediaGrid();
   }
 
-  handleToggleFavorite(mediaId) {
-    this.mediaModel.toggleFavorite(mediaId);
-    this.renderMediaGrid();
+  async handleToggleFavorite(mediaId) {
+    try {
+      await this.mediaModel.toggleFavorite(mediaId);
+      this.renderMediaGrid();
+    } catch (error) {
+      alert("Не удалось изменить статус избранного");
+      console.error("Error toggling favorite:", error);
+    }
   }
 
-  handleDeleteMedia(mediaId) {
+  async handleDeleteMedia(mediaId) {
     if (confirm("Вы уверены, что хотите удалить этот элемент?")) {
-      this.mediaModel.deleteMedia(mediaId);
-      this.renderMediaGrid();
+      try {
+        await this.mediaModel.deleteMedia(mediaId);
+        this.renderMediaGrid();
+      } catch (error) {
+        alert("Не удалось удалить элемент");
+        console.error("Error deleting media:", error);
+      }
     }
   }
 
@@ -295,32 +310,81 @@ export default class MediaPresenter {
     }
   }
 
-  handleCreateMedia(mediaData) {
-    const newMedia = {
-      title: mediaData.title,
-      type: mediaData.type,
-      genre: mediaData.genre,
-      image:
-        mediaData.image || "https://via.placeholder.com/300x450?text=No+Image",
-    };
+  async handleCreateMedia(mediaData) {
+    try {
+      const newMedia = {
+        title: mediaData.title,
+        type: mediaData.type,
+        genre: mediaData.genre,
+        image:
+          mediaData.image ||
+          "https://via.placeholder.com/300x450?text=No+Image",
+      };
 
-    this.mediaModel.addMedia(newMedia);
-    this.closeAddMediaModal();
-    this.renderMediaGrid();
+      await this.mediaModel.addMedia(newMedia);
+      this.closeAddMediaModal();
+      this.renderMediaGrid();
+    } catch (error) {
+      alert("Не удалось создать элемент");
+      console.error("Error creating media:", error);
+    }
   }
 
-  handleAddToPlaylist(media) {
-    const playlists = this.mediaModel.getPlaylists();
-    this.showAddToPlaylistModal(playlists, media);
+  async addMediaToPlaylists(mediaId, playlistIds) {
+    if (!playlistIds || playlistIds.length === 0) {
+      this.closeAddToPlaylistModal();
+      return;
+    }
+
+    try {
+      const results = [];
+
+      for (const playlistId of playlistIds) {
+        try {
+          const result = await this.mediaModel.addToPlaylist(
+            mediaId,
+            playlistId
+          );
+          results.push({ playlistId, success: true, result });
+        } catch (error) {
+          console.error(`Failed to add to playlist ${playlistId}:`, error);
+          results.push({ playlistId, success: false, error });
+        }
+      }
+
+      const successful = results.filter((r) => r.success);
+
+      if (successful.length > 0) {
+        const mediaTitle = this.getMediaTitle(mediaId);
+        alert(
+          `Медиа "${mediaTitle}" добавлено в ${successful.length} плейлист(ов)!`
+        );
+      }
+
+      this.closeAddToPlaylistModal();
+      this.renderNavigation();
+    } catch (error) {
+      console.error("Fatal error in addMediaToPlaylists:", error);
+      alert("Не удалось добавить в плейлист: " + error.message);
+      this.closeAddToPlaylistModal();
+    }
+  }
+
+  getMediaTitle(mediaId) {
+    const media = this.mediaModel.getMediaById(mediaId);
+    return media ? media.title : "Unknown Media";
   }
 
   showAddToPlaylistModal(playlists, media) {
+    const targetMediaId = media.id;
+
     import("../view/add-to-playlist-modal-component.js").then((module) => {
       const AddToPlaylistModalComponent = module.default;
 
       this.playlistModal = new AddToPlaylistModalComponent(
         playlists,
-        media.title
+        media.title,
+        targetMediaId
       );
 
       document.body.appendChild(this.playlistModal.element);
@@ -330,23 +394,9 @@ export default class MediaPresenter {
       });
 
       this.playlistModal.setAddHandler((selectedPlaylistIds) => {
-        this.addMediaToPlaylists(media.id, selectedPlaylistIds);
+        this.addMediaToPlaylists(targetMediaId, selectedPlaylistIds);
       });
     });
-  }
-
-  addMediaToPlaylists(mediaId, playlistIds) {
-    playlistIds.forEach((playlistId) => {
-      this.mediaModel.addToPlaylist(mediaId, playlistId);
-    });
-
-    if (playlistIds.length > 0) {
-      alert("Медиа добавлено в выбранные плейлисты!");
-    }
-
-    this.closeAddToPlaylistModal();
-
-    this.renderNavigation();
   }
 
   closeAddToPlaylistModal() {
@@ -362,7 +412,6 @@ export default class MediaPresenter {
 
   showPlaylistModal() {
     this.modal = new PlaylistModalComponent();
-
     document.body.appendChild(this.modal.element);
 
     this.modal.setCloseHandler(() => {
@@ -373,28 +422,29 @@ export default class MediaPresenter {
       this.createPlaylistFromModal(playlistName);
     });
 
-    // Фокусируемся на поле ввода
     this.modal.focusInput();
   }
 
-  createPlaylistFromModal(playlistName) {
+  async createPlaylistFromModal(playlistName) {
     if (playlistName) {
-      this.mediaModel.createPlaylist(playlistName);
-      this.closePlaylistModal();
+      try {
+        await this.mediaModel.createPlaylist(playlistName);
+        this.closePlaylistModal();
 
-      // Полностью перерисовываем навигацию
-      this.renderNavigation();
+        this.renderNavigation();
 
-      // Сбрасываем активную вкладку на "all"
-      this.currentState.activePlaylist = "all";
-      this.currentState.activeTab = "all";
-      this.renderMediaGrid();
+        this.currentState.activePlaylist = "all";
+        this.currentState.activeTab = "all";
+        this.renderMediaGrid();
+      } catch (error) {
+        alert("Не удалось создать плейлист");
+        console.error("Error creating playlist:", error);
+      }
     }
   }
 
   closePlaylistModal() {
     if (this.modal && this.modal.element) {
-      // Удаляем элемент из DOM
       if (this.modal.element.parentNode) {
         this.modal.element.parentNode.removeChild(this.modal.element);
       }
@@ -402,12 +452,10 @@ export default class MediaPresenter {
     }
   }
 
-  // Создание плейлиста
   handleCreatePlaylist() {
     this.showPlaylistModal();
   }
 
-  // Управление плейлистами (заглушка для будущего функционала)
   handleManagePlaylists() {
     this.showManagePlaylistsModal();
   }
@@ -447,37 +495,42 @@ export default class MediaPresenter {
     }
   }
 
-  handleDeletePlaylist(playlistId) {
-    const success = this.mediaModel.deletePlaylist(playlistId);
-    if (success) {
-      // Если удаляем активный плейлист, переключаемся на "all"
-      if (this.currentState.activePlaylist === playlistId) {
-        this.currentState.activePlaylist = "all";
-        this.currentState.activeTab = "all";
+  async handleDeletePlaylist(playlistId) {
+    try {
+      const success = await this.mediaModel.deletePlaylist(playlistId);
+      if (success) {
+        if (this.currentState.activePlaylist === playlistId) {
+          this.currentState.activePlaylist = "all";
+          this.currentState.activeTab = "all";
+        }
+
+        this.closeManagePlaylistsModal();
+        this.renderNavigation();
+        this.renderMediaGrid();
       }
-
-      this.closeManagePlaylistsModal();
-      this.renderNavigation();
-      this.renderMediaGrid();
+    } catch (error) {
+      alert("Не удалось удалить плейлист");
+      console.error("Error deleting playlist:", error);
     }
   }
 
-  // Редактировать плейлист
-  handleEditPlaylist(playlistId, newName) {
-    const success = this.mediaModel.updatePlaylist(playlistId, newName);
-    if (success) {
-      this.closeManagePlaylistsModal();
-      this.renderNavigation();
-      // Не перерисовываем медиа-грид, т.к. это не влияет на отображение карточек
+  async handleEditPlaylist(playlistId, newName) {
+    try {
+      const success = await this.mediaModel.updatePlaylist(playlistId, newName);
+      if (success) {
+        this.closeManagePlaylistsModal();
+        this.renderNavigation();
+      }
+    } catch (error) {
+      alert("Не удалось обновить плейлист");
+      console.error("Error updating playlist:", error);
     }
   }
 
-  // Обновление UI (можно использовать для оптимизации вместо полной перерисовки)
   updateUI() {
     this.renderMediaGrid();
   }
 
-  // Получение текущего состояния (для отладки)
   getState() {
     return { ...this.currentState };
   }

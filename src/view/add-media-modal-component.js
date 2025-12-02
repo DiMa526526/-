@@ -119,7 +119,6 @@ export default class AddMediaModalComponent extends AbstractComponent {
             this.element.querySelector("input[type='url']").value,
         };
 
-        // Валидация обязательных полей
         if (!mediaData.title || !mediaData.type || !mediaData.genre) {
           alert("Пожалуйста, заполните все обязательные поля");
           return;
@@ -130,7 +129,6 @@ export default class AddMediaModalComponent extends AbstractComponent {
     }
   }
 
-  // Фокусировка на первом поле при открытии
   focusInput() {
     const firstInput = this.element.querySelector("input");
     if (firstInput) {

@@ -41,17 +41,21 @@ function createAddToPlaylistModalTemplate(playlists, mediaTitle) {
 }
 
 export default class AddToPlaylistModalComponent extends AbstractComponent {
-  constructor(playlists, mediaTitle) {
+  constructor(playlists, mediaTitle, mediaId) {
     super();
     this.playlists = playlists;
     this.mediaTitle = mediaTitle;
+    this.mediaId = mediaId;
   }
 
   get template() {
     return createAddToPlaylistModalTemplate(this.playlists, this.mediaTitle);
   }
 
-  // Метод для получения выбранных плейлистов
+  getMediaId() {
+    return this.mediaId;
+  }
+
   getSelectedPlaylists() {
     const checkboxes = this.element.querySelectorAll(
       ".playlist-checkbox:checked:not(:disabled)"
@@ -59,7 +63,6 @@ export default class AddToPlaylistModalComponent extends AbstractComponent {
     return Array.from(checkboxes).map((checkbox) => checkbox.value);
   }
 
-  // Метод для установки обработчика закрытия
   setCloseHandler(handler) {
     const closeBtn = this.element.querySelector(".close");
     const cancelBtn = this.element.querySelector(".cancel");
@@ -73,14 +76,13 @@ export default class AddToPlaylistModalComponent extends AbstractComponent {
       });
   }
 
-  // Метод для установки обработчика добавления
   setAddHandler(handler) {
     const addBtn = this.element.querySelector(".create");
 
     if (addBtn) {
       addBtn.addEventListener("click", () => {
         const selectedPlaylists = this.getSelectedPlaylists();
-        handler(selectedPlaylists);
+        handler(selectedPlaylists, this.mediaId);
       });
     }
   }

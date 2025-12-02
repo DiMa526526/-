@@ -1,15 +1,11 @@
-// view/media-card-component.js
 import { createElement } from "../framework/render.js";
 import { AbstractComponent } from "../framework/view/abstract-component.js";
 
 function createMediaCardTemplate(media) {
-  // Определяем класс для избранного
   const favoriteClass = media.isFavorite ? "favorited" : "";
 
-  // Переводим тип на русский
   const typeText = media.type === "film" ? "Фильм" : "Сериал";
 
-  // Переводим жанр на русский
   const getGenreName = (genre) => {
     const genreMap = {
       "sci-fi": "Фантастика",

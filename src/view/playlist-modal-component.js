@@ -1,4 +1,3 @@
-// playlist-modal-component.js
 import { AbstractComponent } from "../framework/view/abstract-component.js";
 
 function createPlaylistModalTemplate() {
@@ -36,19 +35,16 @@ export default class PlaylistModalComponent extends AbstractComponent {
     return createPlaylistModalTemplate();
   }
 
-  // Метод для установки обработчика закрытия
   setCloseHandler(handler) {
     this.closeHandler = handler;
     this.bindCloseEvents();
   }
 
-  // Метод для установки обработчика создания
   setCreateHandler(handler) {
     this.createHandler = handler;
     this.bindCreateEvents();
   }
 
-  // Привязка событий закрытия
   bindCloseEvents() {
     if (!this.closeHandler) return;
 
@@ -56,7 +52,6 @@ export default class PlaylistModalComponent extends AbstractComponent {
     const cancelBtn = this.element.querySelector(".cancel");
     const overlay = this.element.querySelector(".overlay");
 
-    // Удаляем старые обработчики (если есть)
     if (this._closeHandlers) {
       this._closeHandlers.forEach(({ element, event, handler }) => {
         element.removeEventListener(event, handler);
@@ -91,7 +86,6 @@ export default class PlaylistModalComponent extends AbstractComponent {
       this._closeHandlers.push({ element: overlay, event: "click", handler });
     }
 
-    // Добавляем закрытие по ESC
     const escHandler = (e) => {
       if (e.key === "Escape") {
         this.closeHandler();
@@ -105,7 +99,6 @@ export default class PlaylistModalComponent extends AbstractComponent {
     });
   }
 
-  // Привязка событий создания
   bindCreateEvents() {
     if (!this.createHandler) return;
 
@@ -135,19 +128,15 @@ export default class PlaylistModalComponent extends AbstractComponent {
     }
   }
 
-  // Метод для фокуса на поле ввода
   focusInput() {
     const input = this.element.querySelector(".playlist-name-input");
     if (input) {
       input.focus();
-      // Выделяем весь текст для удобства
       input.select();
     }
   }
 
-  // Очистка при удалении компонента
   removeElement() {
-    // Удаляем все обработчики
     if (this._closeHandlers) {
       this._closeHandlers.forEach(({ element, event, handler }) => {
         element.removeEventListener(event, handler);

@@ -1,7 +1,6 @@
 import { createElement } from "../framework/render.js";
 import { AbstractComponent } from "../framework/view/abstract-component.js";
 
-// Сделаем функцию создания шаблона динамической
 function createNavigationTemplate(playlists = []) {
   const customPlaylists = playlists.filter((p) => !p.isDefault);
 
@@ -53,13 +52,11 @@ export default class NavigationComponent extends AbstractComponent {
     return createNavigationTemplate(this._playlists);
   }
 
-  // Метод для обновления плейлистов
   updatePlaylists(playlists) {
     this._playlists = playlists;
     this.rerender();
   }
 
-  // Метод для перерисовки компонента
   rerender() {
     const oldElement = this.element;
     const parent = oldElement.parentElement;
@@ -70,10 +67,5 @@ export default class NavigationComponent extends AbstractComponent {
     parent.replaceChild(newElement, oldElement);
 
     this._restoreHandlers();
-  }
-
-  _restoreHandlers() {
-    // Здесь будут восстанавливаться обработчики событий
-    // Пока оставим пустым, так как обработчики в презентере
   }
 }

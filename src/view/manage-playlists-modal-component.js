@@ -77,7 +77,7 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
   constructor(playlists) {
     super();
     this.playlists = playlists;
-    this.editMode = new Map(); // Track which playlists are being edited
+    this.editMode = new Map();
   }
 
   get template() {
@@ -116,7 +116,6 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
     const editButtons = this.element.querySelectorAll(".btn-edit");
     const inputs = this.element.querySelectorAll(".playlist-edit-input");
 
-    // Save on edit button click
     editButtons.forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const playlistItem = e.target.closest(".playlist-item");
@@ -129,7 +128,6 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
       });
     });
 
-    // Save on Enter key press
     inputs.forEach((input) => {
       input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
@@ -145,7 +143,6 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
     });
   }
 
-  // Focus on first editable input
   focusInput() {
     const firstInput = this.element.querySelector(".playlist-edit-input");
     if (firstInput) {
