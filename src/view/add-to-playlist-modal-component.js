@@ -1,30 +1,32 @@
 import { AbstractComponent } from "../framework/view/abstract-component.js";
 
-function createAddToPlaylistModalTemplate(playlists, mediaTitle) {
+function createManagePlaylistModalTemplate(
+  playlists,
+  mediaTitle,
+  mediaId,
+  currentPlaylistIds = []
+) {
   return `
     <div class="overlay">
       <div class="modal">
         <div class="modal-header">
-          <div>Добавить в плейлист</div>
+          <div>Управление плейлистами</div>
           <div class="close">×</div>
         </div>
-        <div class="subtitle">Выберите плейлист для "${mediaTitle}"</div>
+        <div class="subtitle">${mediaTitle}</div>
 
         <div class="playlist-list">
           ${playlists
+            .filter((playlist) => !playlist.isDefault)
             .map(
               (playlist) => `
             <label class="playlist-item">
-              <input type="checkbox" value="${
-                playlist.id
-              }" class="playlist-checkbox" 
-                     ${playlist.isDefault ? "disabled" : ""} />
+              <input type="checkbox" value="${playlist.id}" 
+                     class="playlist-checkbox" 
+                     ${
+                       currentPlaylistIds.includes(playlist.id) ? "checked" : ""
+                     } />
               <span class="playlist-name">${playlist.name}</span>
-              ${
-                playlist.isDefault
-                  ? '<span class="default-badge">системный</span>'
-                  : ""
-              }
             </label>
           `
             )
@@ -33,32 +35,34 @@ function createAddToPlaylistModalTemplate(playlists, mediaTitle) {
 
         <div class="buttons">
           <button class="btn cancel">Отмена</button>
-          <button class="btn create">Добавить</button>
+          <button class="btn save">Сохранить</button>
         </div>
       </div>
     </div>
   `;
 }
 
-export default class AddToPlaylistModalComponent extends AbstractComponent {
-  constructor(playlists, mediaTitle, mediaId) {
+export default class ManagePlaylistModalComponent extends AbstractComponent {
+  constructor(playlists, mediaTitle, mediaId, currentPlaylistIds = []) {
     super();
     this.playlists = playlists;
     this.mediaTitle = mediaTitle;
     this.mediaId = mediaId;
+    this.currentPlaylistIds = currentPlaylistIds;
   }
 
   get template() {
-    return createAddToPlaylistModalTemplate(this.playlists, this.mediaTitle);
-  }
-
-  getMediaId() {
-    return this.mediaId;
+    return createManagePlaylistModalTemplate(
+      this.playlists,
+      this.mediaTitle,
+      this.mediaId,
+      this.currentPlaylistIds
+    );
   }
 
   getSelectedPlaylists() {
     const checkboxes = this.element.querySelectorAll(
-      ".playlist-checkbox:checked:not(:disabled)"
+      ".playlist-checkbox:checked"
     );
     return Array.from(checkboxes).map((checkbox) => checkbox.value);
   }
@@ -70,19 +74,20 @@ export default class AddToPlaylistModalComponent extends AbstractComponent {
 
     if (closeBtn) closeBtn.addEventListener("click", handler);
     if (cancelBtn) cancelBtn.addEventListener("click", handler);
-    if (overlay)
+    if (overlay) {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) handler();
       });
+    }
   }
 
-  setAddHandler(handler) {
-    const addBtn = this.element.querySelector(".create");
+  setSaveHandler(handler) {
+    const saveBtn = this.element.querySelector(".save");
 
-    if (addBtn) {
-      addBtn.addEventListener("click", () => {
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
         const selectedPlaylists = this.getSelectedPlaylists();
-        handler(selectedPlaylists, this.mediaId);
+        handler(selectedPlaylists);
       });
     }
   }

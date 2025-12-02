@@ -47,7 +47,7 @@ function createMediaCardTemplate(media) {
       </div>
       <div class="card-actions">
         <button class="card-playlist btn-secondary">
-          <img src="./icons/plus.svg" class="icon" alt="" />В плейлист
+          <img src="../../icons/gear-alt-svgrepo-com.svg" class="icon" alt="" />Управление плейлистами
         </button>
         <button class="delete-btn">
           <img src="./icons/trash.svg" class="icon" alt="" />Удалить

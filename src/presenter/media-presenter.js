@@ -215,7 +215,8 @@ export default class MediaPresenter {
     const playlistBtn = cardElement.querySelector(".card-playlist");
     if (playlistBtn) {
       playlistBtn.addEventListener("click", () => {
-        this.handleAddToPlaylist(media);
+        const playlists = this.mediaModel.getPlaylists();
+        this.showManagePlaylistForMedia(playlists, media);
       });
     }
 
@@ -227,9 +228,58 @@ export default class MediaPresenter {
     }
   }
 
-  handleAddToPlaylist(media) {
+  async syncMediaWithPlaylists(mediaId, selectedPlaylistIds) {
+    try {
+      const media = this.mediaModel.getMediaById(mediaId);
+      if (!media) {
+        throw new Error(`Медиа с ID ${mediaId} не найдено`);
+      }
+
+      const currentPlaylistIds = media.playlistIds || [];
+
+      const playlistsToAdd = selectedPlaylistIds.filter(
+        (id) => !currentPlaylistIds.includes(id)
+      );
+
+      const playlistsToRemove = currentPlaylistIds.filter(
+        (id) => !selectedPlaylistIds.includes(id)
+      );
+
+      for (const playlistId of playlistsToAdd) {
+        await this.mediaModel.addToPlaylist(mediaId, playlistId);
+      }
+
+      for (const playlistId of playlistsToRemove) {
+        await this.mediaModel.removeFromPlaylist(mediaId, playlistId);
+      }
+
+      this.closeManagePlaylistForMediaModal();
+      this.renderNavigation();
+      this.renderMediaGrid();
+
+      const addedCount = playlistsToAdd.length;
+      const removedCount = playlistsToRemove.length;
+
+      if (addedCount > 0 || removedCount > 0) {
+        const mediaTitle = this.getMediaTitle(mediaId);
+        let message = `Плейлисты обновлены для "${mediaTitle}":`;
+        if (addedCount > 0)
+          message += `\n✓ Добавлено в ${addedCount} плейлист(ов)`;
+        if (removedCount > 0)
+          message += `\n✗ Удалено из ${removedCount} плейлист(ов)`;
+        alert(message);
+      }
+    } catch (error) {
+      console.error("Error syncing media with playlists:", error);
+      alert("Не удалось обновить плейлисты: " + error.message);
+      this.closeManagePlaylistForMediaModal();
+    }
+  }
+
+  handleManagePlaylistForMedia(media) {
     const playlists = this.mediaModel.getPlaylists();
-    this.showAddToPlaylistModal(playlists, media);
+    const currentPlaylistIds = media.playlistIds || [];
+    this.showManagePlaylistForMediaModal(playlists, media, currentPlaylistIds);
   }
 
   bindAddButtonEvents() {
@@ -330,76 +380,75 @@ export default class MediaPresenter {
     }
   }
 
-  async addMediaToPlaylists(mediaId, playlistIds) {
-    if (!playlistIds || playlistIds.length === 0) {
-      this.closeAddToPlaylistModal();
-      return;
-    }
-
+  async syncMediaWithPlaylists(mediaId, selectedPlaylistIds) {
     try {
-      const results = [];
-
-      for (const playlistId of playlistIds) {
-        try {
-          const result = await this.mediaModel.addToPlaylist(
-            mediaId,
-            playlistId
-          );
-          results.push({ playlistId, success: true, result });
-        } catch (error) {
-          console.error(`Failed to add to playlist ${playlistId}:`, error);
-          results.push({ playlistId, success: false, error });
-        }
+      const media = this.mediaModel.getMediaById(mediaId);
+      if (!media) {
+        throw new Error(`Медиа с ID ${mediaId} не найдено`);
       }
 
-      const successful = results.filter((r) => r.success);
+      const currentPlaylistIds = media.playlistIds || [];
 
-      if (successful.length > 0) {
-        const mediaTitle = this.getMediaTitle(mediaId);
-        alert(
-          `Медиа "${mediaTitle}" добавлено в ${successful.length} плейлист(ов)!`
-        );
-      }
+      const playlistsToAdd = selectedPlaylistIds.filter(
+        (id) => !currentPlaylistIds.includes(id)
+      );
 
-      this.closeAddToPlaylistModal();
+      const playlistsToRemove = currentPlaylistIds.filter(
+        (id) => !selectedPlaylistIds.includes(id)
+      );
+
+      const addPromises = playlistsToAdd.map((playlistId) =>
+        this.mediaModel.addToPlaylist(mediaId, playlistId)
+      );
+
+      const removePromises = playlistsToRemove.map((playlistId) =>
+        this.mediaModel.removeFromPlaylist(mediaId, playlistId)
+      );
+
+      await Promise.all([...addPromises, ...removePromises]);
+
+      this.closeManagePlaylistForMediaModal();
       this.renderNavigation();
+      this.renderMediaGrid();
+
+      return {
+        added: playlistsToAdd.length,
+        removed: playlistsToRemove.length,
+      };
     } catch (error) {
-      console.error("Fatal error in addMediaToPlaylists:", error);
-      alert("Не удалось добавить в плейлист: " + error.message);
-      this.closeAddToPlaylistModal();
+      console.error("Fatal error in syncMediaWithPlaylists:", error);
+      alert("Не удалось обновить плейлисты: " + error.message);
+      this.closeManagePlaylistForMediaModal();
     }
   }
 
-  getMediaTitle(mediaId) {
-    const media = this.mediaModel.getMediaById(mediaId);
-    return media ? media.title : "Unknown Media";
-  }
-
-  showAddToPlaylistModal(playlists, media) {
+  showManagePlaylistForMedia(playlists, media) {
     const targetMediaId = media.id;
+    const currentPlaylistIds = media.playlistIds || [];
 
     import("../view/add-to-playlist-modal-component.js").then((module) => {
-      const AddToPlaylistModalComponent = module.default;
+      const ManagePlaylistModalComponent = module.default;
 
-      this.playlistModal = new AddToPlaylistModalComponent(
+      this.playlistModal = new ManagePlaylistModalComponent(
         playlists,
         media.title,
-        targetMediaId
+        targetMediaId,
+        currentPlaylistIds
       );
 
       document.body.appendChild(this.playlistModal.element);
 
       this.playlistModal.setCloseHandler(() => {
-        this.closeAddToPlaylistModal();
+        this.closeManagePlaylistForMediaModal();
       });
 
-      this.playlistModal.setAddHandler((selectedPlaylistIds) => {
-        this.addMediaToPlaylists(targetMediaId, selectedPlaylistIds);
+      this.playlistModal.setSaveHandler((selectedPlaylistIds) => {
+        this.syncMediaWithPlaylists(targetMediaId, selectedPlaylistIds);
       });
     });
   }
 
-  closeAddToPlaylistModal() {
+  closeManagePlaylistForMediaModal() {
     if (this.playlistModal && this.playlistModal.element) {
       if (this.playlistModal.element.parentNode) {
         this.playlistModal.element.parentNode.removeChild(

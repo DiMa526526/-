@@ -160,9 +160,11 @@ export default class MediaModel {
 
   async removeFromPlaylist(mediaId, playlistId) {
     try {
-      const media = this.media.find((m) => m.id === mediaId);
+      const media = this.media.find((m) => String(m.id) === String(mediaId));
       if (media) {
-        media.playlistIds = media.playlistIds.filter((id) => id !== playlistId);
+        media.playlistIds = media.playlistIds.filter(
+          (id) => String(id) !== String(playlistId)
+        );
 
         await this.#mediaApiServise.updateMedia(mediaId, {
           playlistIds: media.playlistIds,
@@ -270,6 +272,10 @@ export default class MediaModel {
       console.error("Failed to update media:", error);
       throw error;
     }
+  }
+
+  getMediaInPlaylist(playlistId) {
+    return this.media.filter((m) => m.playlistIds.includes(playlistId));
   }
 
   #mediaApiServise = null;
