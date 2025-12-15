@@ -12,49 +12,36 @@ function createManagePlaylistsModalTemplate(playlists) {
             </svg>
           </button>
         </div>
-        
         <div class="modal-subtitle">Смотри и управляй своими плейлистами</div>
-        
         <div class="playlists-list">
           ${playlists
             .map(
-              (playlist) => `
-            <div class="playlist-item" data-playlist-id="${playlist.id}">
+              (p) => `
+            <div class="playlist-item" data-playlist-id="${p.id}">
               <div class="playlist-content">
                 ${
-                  playlist.isDefault
-                    ? `
-                  <span class="playlist-name">${playlist.name}</span>
-                  <span class="default-badge">системный</span>
-                `
-                    : `
-                  <input 
-                    type="text" 
-                    class="playlist-edit-input" 
-                    value="${playlist.name}"
-                    maxlength="50"
-                  >
-                `
+                  p.isDefault
+                    ? `<span class="playlist-name">${p.name}</span><span class="default-badge">системный</span>`
+                    : `<input type="text" class="playlist-edit-input" value="${p.name}" maxlength="50">`
                 }
               </div>
-              
               <div class="playlist-actions">
                 ${
-                  !playlist.isDefault
+                  !p.isDefault
                     ? `
-                  <button class="btn-edit" title="Сохранить изменения">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                  </button>
-                  <button class="btn-delete" title="Удалить плейлист">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
-                      <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                  </button>
-                `
+                    <button class="btn-edit" title="Сохранить изменения">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </button>
+                    <button class="btn-delete" title="Удалить плейлист">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </button>
+                  `
                     : ""
                 }
               </div>
@@ -63,7 +50,6 @@ function createManagePlaylistsModalTemplate(playlists) {
             )
             .join("")}
         </div>
-        
         <div class="modal-notes">
           <p>• Системные плейлисты нельзя редактировать или удалять</p>
           <p>• При удалении плейлиста медиа-элементы остаются в библиотеке</p>
@@ -77,7 +63,7 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
   constructor(playlists) {
     super();
     this.playlists = playlists;
-    this.editMode = new Map();
+    this._closeHandlers = [];
   }
 
   get template() {
@@ -85,26 +71,16 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
   }
 
   setCloseHandler(handler) {
-    const closeBtn = this.element.querySelector(".close-btn");
-    const overlay = this.element.querySelector(".overlay");
-
-    if (closeBtn) closeBtn.addEventListener("click", handler);
-
-    if (overlay) {
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) handler();
-      });
-    }
+    this._closeHandler = handler;
+    this.bindCloseEvents();
   }
 
   setDeleteHandler(handler) {
     const deleteButtons = this.element.querySelectorAll(".btn-delete");
-
     deleteButtons.forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        const playlistItem = e.target.closest(".playlist-item");
-        const playlistId = playlistItem.dataset.playlistId;
-
+        const playlistId =
+          e.target.closest(".playlist-item").dataset.playlistId;
         if (confirm("Вы уверены, что хотите удалить этот плейлист?")) {
           handler(playlistId);
         }
@@ -118,12 +94,11 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
 
     editButtons.forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        const playlistItem = e.target.closest(".playlist-item");
-        const playlistId = playlistItem.dataset.playlistId;
-        const input = playlistItem.querySelector(".playlist-edit-input");
-
+        const item = e.target.closest(".playlist-item");
+        const id = item.dataset.playlistId;
+        const input = item.querySelector(".playlist-edit-input");
         if (input && input.value.trim()) {
-          handler(playlistId, input.value.trim());
+          handler(id, input.value.trim());
         }
       });
     });
@@ -131,16 +106,63 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
     inputs.forEach((input) => {
       input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-          const playlistItem = e.target.closest(".playlist-item");
-          const playlistId = playlistItem.dataset.playlistId;
-          const editBtn = playlistItem.querySelector(".btn-edit");
-
-          if (editBtn && input.value.trim()) {
-            handler(playlistId, input.value.trim());
+          const item = e.target.closest(".playlist-item");
+          const id = item.dataset.playlistId;
+          const btn = item.querySelector(".btn-edit");
+          if (btn && input.value.trim()) {
+            handler(id, input.value.trim());
           }
         }
       });
     });
+  }
+
+  bindCloseEvents() {
+    this._clearCloseHandlers();
+
+    const closeBtn = this.element.querySelector(".close-btn");
+    const overlay = this.element.querySelector(".overlay");
+    const close = () => {
+      if (this._closeHandler) this._closeHandler();
+    };
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", close);
+      this._closeHandlers.push({
+        el: closeBtn,
+        event: "click",
+        handler: close,
+      });
+    }
+
+    if (overlay) {
+      const overlayClick = (e) => {
+        if (e.target === overlay) close();
+      };
+      overlay.addEventListener("click", overlayClick);
+      this._closeHandlers.push({
+        el: overlay,
+        event: "click",
+        handler: overlayClick,
+      });
+    }
+
+    const escHandler = (e) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", escHandler);
+    this._closeHandlers.push({
+      el: document,
+      event: "keydown",
+      handler: escHandler,
+    });
+  }
+
+  _clearCloseHandlers() {
+    this._closeHandlers.forEach(({ el, event, handler }) => {
+      el.removeEventListener(event, handler);
+    });
+    this._closeHandlers = [];
   }
 
   focusInput() {
@@ -148,5 +170,10 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
     if (firstInput) {
       setTimeout(() => firstInput.focus(), 100);
     }
+  }
+
+  removeElement() {
+    this._clearCloseHandlers();
+    super.removeElement();
   }
 }
