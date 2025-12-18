@@ -38,3 +38,4 @@ export class FavoriteToggleButtonComponent extends AbstractComponent {
     });
   }
 }
+

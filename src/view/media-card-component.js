@@ -2,37 +2,24 @@ import { AbstractComponent } from "../framework/view/abstract-component.js";
 import { FavoriteToggleButtonComponent } from "./favorite-toggle-button-component.js";
 import { ManagePlaylistButtonComponent } from "./manage-playlist-button-component.js";
 import { DeleteMediaButtonComponent } from "./delete-media-button-component.js";
+import { MediaType, Genre } from "../const.js";
 
 function createMediaCardTemplate(media) {
-  const typeText = media.type === "film" ? "Фильм" : "Сериал";
-
-  const getGenreName = (genre) => {
-    const genreMap = {
-      "sci-fi": "Фантастика",
-      fantasy: "Фэнтези",
-      horror: "Ужасы",
-      detective: "Детектив",
-      mystic: "Мистика",
-    };
-    return genreMap[genre] || genre;
-  };
+  const typeText = MediaType[media.type] || media.type;
+  const genreName = Genre[media.genre] || media.genre;
 
   return `
-    <article class="media-card" data-type="${media.type}" data-genre="${
-    media.genre
-  }">
+    <article class="media-card" data-type="${media.type}" data-genre="${media.genre}">
       <img src="${media.image}" alt="Постер ${media.title}" />
       <div class="card-info">
         <div class="card-header">
           <h3 class="card-title">${media.title}</h3>
-
         </div>
         <div class="card-tags">
           <span class="media-type">${typeText}</span>
-          <span class="media-genre">${getGenreName(media.genre)}</span>
+          <span class="media-genre">${genreName}</span>
         </div>
         <div class="card-actions">
-
         </div>
       </div>
     </article>

@@ -1,7 +1,4 @@
-import HeaderPresenter from "./header-presenter.js";
-import NavigationPresenter from "./navigation-presenter.js";
-import MediaGridPresenter from "./media-grid-presenter.js";
-import ModalManager from "./modal-manager-presenter.js";
+import UIPresenter from "./ui-presenter.js";
 
 export default class MediaAppPresenter {
   constructor(
@@ -11,66 +8,52 @@ export default class MediaAppPresenter {
     mediaModel
   ) {
     this.mediaModel = mediaModel;
-    this.modalManager = new ModalManager(mediaModel);
+    this.uiPresenter = new UIPresenter(
+      mediaModel,
+      headerContainer,
+      navigationContainer,
+      mediaContainer
+    );
+    this.state = this.uiPresenter.getState();
+  }
 
-    this.state = {
-      filters: { type: "all", genre: "all", search: "" },
-      activePlaylist: "all",
-      activeTab: "all",
-    };
+  init() {
+    this.uiPresenter.init();
 
-    this.headerPresenter = new HeaderPresenter(headerContainer, (updates) => {
+    this.uiPresenter.bindHeaderEvents((updates) => {
       Object.assign(this.state.filters, updates);
       this.updateMediaGrid();
     });
 
-    this.navigationPresenter = new NavigationPresenter(
-      navigationContainer,
-      mediaModel,
+    this.uiPresenter.renderNavigation(
       (tabId) => this.handleTabChange(tabId),
       () => this.handleCreatePlaylist(),
       () => this.handleManagePlaylists()
     );
 
-    this.mediaGridPresenter = new MediaGridPresenter(
-      mediaContainer,
-      mediaModel,
-      () => this.handleAddMedia(),
-      {
-        toggleFavorite: (id) => this.handleToggleFavorite(id),
-        managePlaylist: (item) => this.handleManagePlaylistForMedia(item),
-        delete: (id) => this.handleDeleteMedia(id),
-      }
-    );
-  }
-
-  init() {
-    this.headerPresenter.init();
-    this.navigationPresenter.init();
     this.updateMediaGrid();
   }
 
-  getFilteredMedia() {
-    let media = this.mediaModel.getMediaForPlaylist(this.state.activePlaylist);
-    const f = this.state.filters;
-    return media.filter((item) => {
-      const typeMatch = f.type === "all" || item.type === f.type;
-      const genreMatch = f.genre === "all" || item.genre === f.genre;
-      const searchMatch =
-        !f.search || item.title.toLowerCase().includes(f.search.toLowerCase());
-      return typeMatch && genreMatch && searchMatch;
-    });
-  }
-
   updateMediaGrid() {
-    const media = this.getFilteredMedia();
-    this.mediaGridPresenter.render(media);
+    const media = this.uiPresenter.getFilteredMedia(
+      this.state.activePlaylist,
+      this.state.filters
+    );
+
+    this.uiPresenter.renderMediaGrid(media, {
+      toggleFavorite: (id) => this.handleToggleFavorite(id),
+      managePlaylist: (item) => this.handleManagePlaylistForMedia(item),
+      delete: (id) => this.handleDeleteMedia(id),
+    });
+
+    this.uiPresenter.renderAddButton(() => this.handleAddMedia());
   }
 
   handleTabChange(tabId) {
     this.state.activeTab = tabId;
     this.state.activePlaylist = tabId;
-    this.navigationPresenter.updateActiveTab(tabId);
+    this.uiPresenter.updateState({ activeTab: tabId, activePlaylist: tabId });
+    this.uiPresenter.updateActiveTab(tabId);
     this.updateMediaGrid();
   }
 
@@ -95,7 +78,7 @@ export default class MediaAppPresenter {
   }
 
   handleAddMedia() {
-    this.modalManager.showAddMediaModal(
+    this.uiPresenter.showAddMediaModal(
       async (data, close) => {
         if (await this.handleCreateMedia(data)) {
           close();
@@ -123,7 +106,7 @@ export default class MediaAppPresenter {
 
   handleManagePlaylistForMedia(media) {
     const playlists = this.mediaModel.getPlaylists();
-    this.modalManager.showManagePlaylistForMedia(
+    this.uiPresenter.showManagePlaylistForMedia(
       playlists,
       media,
       async (selectedIds, close) => {
@@ -150,7 +133,11 @@ export default class MediaAppPresenter {
         ),
       ]);
 
-      this.navigationPresenter.render();
+      this.uiPresenter.renderNavigation(
+        (tabId) => this.handleTabChange(tabId),
+        () => this.handleCreatePlaylist(),
+        () => this.handleManagePlaylists()
+      );
       this.updateMediaGrid();
       return true;
     } catch (e) {
@@ -160,7 +147,7 @@ export default class MediaAppPresenter {
   }
 
   handleCreatePlaylist() {
-    this.modalManager.showPlaylistModal(
+    this.uiPresenter.showPlaylistModal(
       async (name, close) => {
         if (await this.createPlaylist(name)) {
           close();
@@ -174,9 +161,14 @@ export default class MediaAppPresenter {
     if (!name?.trim()) return false;
     try {
       await this.mediaModel.createPlaylist(name.trim());
-      this.navigationPresenter.render();
+      this.uiPresenter.renderNavigation(
+        (tabId) => this.handleTabChange(tabId),
+        () => this.handleCreatePlaylist(),
+        () => this.handleManagePlaylists()
+      );
       this.state.activePlaylist = "all";
       this.state.activeTab = "all";
+      this.uiPresenter.updateState({ activePlaylist: "all", activeTab: "all" });
       this.updateMediaGrid();
       return true;
     } catch (e) {
@@ -187,7 +179,7 @@ export default class MediaAppPresenter {
 
   handleManagePlaylists() {
     const playlists = this.mediaModel.getPlaylists();
-    this.modalManager.showManagePlaylistsModal(
+    this.uiPresenter.showManagePlaylistsModal(
       playlists,
       (id, close) => this.handleDeletePlaylist(id, close),
       (id, name, close) => this.handleEditPlaylist(id, name, close),
@@ -203,8 +195,16 @@ export default class MediaAppPresenter {
           if (this.state.activePlaylist === id) {
             this.state.activePlaylist = "all";
             this.state.activeTab = "all";
+            this.uiPresenter.updateState({
+              activePlaylist: "all",
+              activeTab: "all",
+            });
           }
-          this.navigationPresenter.render();
+          this.uiPresenter.renderNavigation(
+            (tabId) => this.handleTabChange(tabId),
+            () => this.handleCreatePlaylist(),
+            () => this.handleManagePlaylists()
+          );
           this.updateMediaGrid();
           close();
         }
@@ -217,13 +217,21 @@ export default class MediaAppPresenter {
   async handleEditPlaylist(id, name) {
     try {
       await this.mediaModel.updatePlaylist(id, name);
-      this.navigationPresenter.render();
+      this.uiPresenter.renderNavigation(
+        (tabId) => this.handleTabChange(tabId),
+        () => this.handleCreatePlaylist(),
+        () => this.handleManagePlaylists()
+      );
     } catch (e) {
       alert("Не удалось обновить плейлист");
     }
   }
 
   getState() {
-    return { ...this.state };
+    return this.uiPresenter.getState();
+  }
+
+  destroy() {
+    this.uiPresenter.destroy();
   }
 }

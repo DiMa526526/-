@@ -1,7 +1,15 @@
-import { createElement } from "../framework/render.js";
 import { AbstractComponent } from "../framework/view/abstract-component.js";
+import { MediaType, Genre } from "../const.js";
 
 function createHeaderComponentTemplate() {
+  const typeOptions = Object.entries(MediaType)
+    .map(([value, label]) => `<option value="${value}">${label}</option>`)
+    .join("");
+
+  const genreOptions = Object.entries(Genre)
+    .map(([value, label]) => `<option value="${value}">${label}</option>`)
+    .join("");
+
   return `<header class="header">
       <div class="header-content">
         <div class="header-top">
@@ -26,17 +34,12 @@ function createHeaderComponentTemplate() {
         <div class="filters">
           <select id="type-filter" class="filter-select">
             <option value="all">Все типы</option>
-            <option value="film">Фильмы</option>
-            <option value="series">Сериалы</option>
+            ${typeOptions}
           </select>
 
           <select id="genre-filter" class="filter-select">
             <option value="all">Все жанры</option>
-            <option value="fantasy">Фэнтези</option>
-            <option value="sci-fi">Фантастика</option>
-            <option value="horror">Ужасы</option>
-            <option value="detective">Детектив</option>
-            <option value="mystic">Мистика</option>
+            ${genreOptions}
           </select>
         </div>
       </div>

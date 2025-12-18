@@ -1,6 +1,15 @@
 import { AbstractComponent } from "../framework/view/abstract-component.js";
+import { MediaType, Genre } from "../const.js";
 
 function createAddMediaModalTemplate() {
+  const typeOptions = Object.entries(MediaType)
+    .map(([value, label]) => `<option value="${value}">${label}</option>`)
+    .join("");
+
+  const genreOptions = Object.entries(Genre)
+    .map(([value, label]) => `<option value="${value}">${label}</option>`)
+    .join("");
+
   return `
     <div class="overlay">
       <div class="modal add-media-modal">
@@ -27,8 +36,7 @@ function createAddMediaModalTemplate() {
             <label class="form-label">Тип <span class="required">*</span></label>
             <select class="form-select" required>
               <option value="" disabled selected>Выберите тип</option>
-              <option value="film">Фильм</option>
-              <option value="series">Сериал</option>
+              ${typeOptions}
             </select>
           </div>
           
@@ -36,11 +44,7 @@ function createAddMediaModalTemplate() {
             <label class="form-label">Жанр <span class="required">*</span></label>
             <select class="form-select" required>
               <option value="" disabled selected>Выберите жанр</option>
-              <option value="sci-fi">Фантастика</option>
-              <option value="fantasy">Фэнтези</option>
-              <option value="horror">Ужасы</option>
-              <option value="detective">Детектив</option>
-              <option value="mystic">Мистика</option>
+              ${genreOptions}
             </select>
           </div>
           
