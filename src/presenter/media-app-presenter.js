@@ -94,7 +94,7 @@ export default class MediaAppPresenter {
         ...mediaData,
         image:
           mediaData.image ||
-          "https://via.placeholder.com/300x450?text=No+Image",
+          "https://lubchem.com/website/wp-content/uploads/2023/02/Shutterstock_1036735678-scaled-1000x1000.jpg",
       });
       this.updateMediaGrid();
       return true;

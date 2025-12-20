@@ -121,7 +121,7 @@ export default class ManagePlaylistsModalComponent extends AbstractComponent {
     this._clearCloseHandlers();
 
     const closeBtn = this.element.querySelector(".close-btn");
-    const overlay = this.element.querySelector(".overlay");
+    const overlay = this.element;
     const close = () => {
       if (this._closeHandler) this._closeHandler();
     };

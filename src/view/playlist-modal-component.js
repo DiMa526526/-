@@ -11,7 +11,7 @@ function createPlaylistModalTemplate() {
         <div class="subtitle">Создавай свой плейлист</div>
 
         <label>
-          Название Плейлиста
+          Название Плейлиста*
           <input type="text" placeholder="Мой плейлист" class="playlist-name-input" />
         </label>
 
@@ -50,7 +50,7 @@ export default class PlaylistModalComponent extends AbstractComponent {
 
     const closeBtn = this.element.querySelector(".close");
     const cancelBtn = this.element.querySelector(".cancel");
-    const overlay = this.element.querySelector(".overlay");
+    const overlay = this.element;
 
     if (this._closeHandlers) {
       this._closeHandlers.forEach(({ element, event, handler }) => {

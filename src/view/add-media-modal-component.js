@@ -106,7 +106,7 @@ export default class AddMediaModalComponent extends AbstractComponent {
 
     const closeBtn = this.element.querySelector(".close-btn");
     const cancelBtn = this.element.querySelector(".cancel");
-    const overlay = this.element.querySelector(".overlay");
+    const overlay = this.element;
 
     const close = () => {
       if (this._closeHandler) this._closeHandler();

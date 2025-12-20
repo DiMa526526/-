@@ -70,7 +70,7 @@ export default class ManagePlaylistModalComponent extends AbstractComponent {
   setCloseHandler(handler) {
     const closeBtn = this.element.querySelector(".close");
     const cancelBtn = this.element.querySelector(".cancel");
-    const overlay = this.element.querySelector(".overlay");
+    const overlay = this.element;
 
     if (closeBtn) closeBtn.addEventListener("click", handler);
     if (cancelBtn) cancelBtn.addEventListener("click", handler);
